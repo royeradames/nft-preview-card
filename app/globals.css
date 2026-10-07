@@ -1,0 +1,47 @@
+@import "tailwindcss";
+
+:root {
+  color-scheme: dark;
+  --canvas: hsl(217 54% 11%);
+  --card: hsl(216 50% 16%);
+  --muted: hsl(215 51% 70%);
+  --line: hsl(215 32% 27%);
+  --accent: hsl(178 100% 50%);
+  --ink: white;
+}
+* { box-sizing: border-box; }
+html { font-size: 100%; }
+body { margin: 0; background: var(--canvas); color: var(--ink); font-family: var(--font-outfit), sans-serif; }
+button, a { -webkit-tap-highlight-color: transparent; }
+button { cursor: pointer; font: inherit; }
+a { color: inherit; text-underline-offset: .2em; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 4px; }
+main { min-height: calc(100svh - 3rem); display: grid; place-items: center; padding: 3rem 1.5rem; }
+.artwork-card { width: min(100%, 21.875rem); padding: 1.5rem; border-radius: 1rem; background: var(--card); box-shadow: 0 1.5rem 3rem hsl(217 54% 7% / .35); }
+.artwork-button { display: block; position: relative; width: 100%; padding: 0; border: 0; border-radius: .5rem; background: transparent; }
+.artwork { display: block; width: 100%; height: auto; border-radius: inherit; }
+.view-overlay { position: absolute; inset: 0; display: grid; place-items: center; border-radius: inherit; background: hsl(178 100% 50% / .5); opacity: 0; }
+.artwork-button:hover .view-overlay, .artwork-button:focus-visible .view-overlay { opacity: 1; }
+h1 { margin: 1rem 0 .5rem; font-size: 1.375rem; font-weight: 600; line-height: 1.3; }
+.text-link { display: inline-block; min-height: 2.75rem; border: 0; padding: .375rem 0; background: none; color: var(--ink); text-align: left; }
+.text-link:hover, .text-link:focus-visible { color: var(--accent); }
+.description { margin: 0; color: var(--muted); font-size: 1.125rem; font-weight: 300; line-height: 1.5; }
+.artwork-facts { display: flex; justify-content: space-between; gap: .5rem; margin: 1.25rem 0 1rem; font-size: 1rem; line-height: 1.5; }
+.artwork-facts dd { display: flex; align-items: center; gap: .4rem; margin: 0; color: var(--muted); white-space: nowrap; }
+.artwork-facts .price { color: var(--accent); font-weight: 600; }
+.artwork-facts img { flex: none; }
+.creator { display: flex; align-items: center; gap: 1rem; border-top: 1px solid var(--line); padding-top: .5rem; }
+.creator > img { border: 1px solid white; border-radius: 50%; flex: none; }
+.creator-copy { margin: 0; color: var(--muted); font-size: 1rem; line-height: 1.5; }
+footer { padding: 0 1.5rem 1rem; color: var(--muted); font-size: 1rem; line-height: 1.5; text-align: center; }
+footer a { display: inline-block; min-height: 2.75rem; padding-block: .625rem; }
+footer a:hover { color: var(--accent); }
+.creator details { display: inline; }
+.creator summary { display: inline-flex; align-items: center; gap: .375rem; min-height: 2.75rem; cursor: pointer; color: var(--ink); }
+.creator summary::-webkit-details-marker { display: none; }
+.creator summary::after { content: ""; width: .35rem; height: .35rem; border-right: 1px solid currentColor; border-bottom: 1px solid currentColor; transform: rotate(45deg); margin-bottom: .2rem; }
+.creator summary:hover, .creator summary:focus-visible { color: var(--accent); }
+.creator details[open] summary::after { transform: rotate(225deg); margin-bottom: 0; }
+.creator details p { margin: .5rem 0 0; color: var(--muted); font-size: 1rem; line-height: 1.5; }
+@media (max-width: 400px) { main { padding-block: 1.5rem; } }
+@media (prefers-reduced-motion: no-preference) { .view-overlay { transition: opacity .15s; } }
