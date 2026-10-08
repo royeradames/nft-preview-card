@@ -6,13 +6,15 @@ The card keeps the sample price and time remaining as presentation text. It has 
 
 ## Development
 
-Node 22.13 or later. Use `npm ci`, `npm run dev`, `npm run lint`, `npm run typecheck`, `npm run build`, and `npm test`. Browser tests use installed Chrome and own port 4389. Dependency resolution and rendered verification are pending in this source preparation.
+Live: https://nft-preview-card.royeradames.com/
+
+Node 24. Use `npm ci`, `npm run dev`, `npm run lint`, `npm run typecheck`, `npm run build`, and `npm test`. Browser tests use installed Chrome on port 4389 (`PORT` overrides it). `tests/design.spec.ts` checks the Figma desktop, active and mobile frames, the site identity, and every width from 320 to 1600 px in 10 px steps.
 
 Next 16.3.6, React 19.2.8, TypeScript and Tailwind 4 are pinned to the current family baseline. The page is a server component. There is no application client state or backend.
 
 ## Sources
 
-Original challenge files are preserved under `reference/`; supplied images moved byte-for-byte to `public/images/`. Desktop/mobile/active references guide the authored CSS. The 16px family text floor and 44px interactive targets can increase vertical spacing compared with the reference.
+Original challenge files are preserved under `reference/`; supplied images moved byte-for-byte to `public/images/`. Desktop/mobile/active references guide the authored CSS. The card follows the Figma frames: 350 px wide, 24 px padding and a 24 px stack, with the design's 16 to 22 px type. The title link and creator name keep the design's type size and meet the 24 px WCAG 2.5.8 target floor; footer links keep 44 px targets. `og:site_name` and WebSite JSON-LD name the site "NFT Preview Card".
 
 Outfit is served locally from the Google Fonts repository at commit `8b0a1d0f5983c89bc2b93f1b5fb55f9e252744b5`, under the bundled SIL Open Font License. The font bytes are unchanged.
 
