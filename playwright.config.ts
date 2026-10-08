@@ -1,12 +1,15 @@
 import { defineConfig } from "@playwright/test";
+
+const port = Number(process.env.PORT ?? 4389);
+
 export default defineConfig({
   testDir: "./tests",
-  workers: 1,
+  workers: 2,
   reporter: "list",
-  use: { baseURL: "http://127.0.0.1:4389", headless: true, channel: "chrome" },
+  use: { baseURL: `http://127.0.0.1:${port}`, headless: true, channel: "chrome" },
   webServer: {
-    command: "npm run start -- --hostname 127.0.0.1 --port 4389",
-    url: "http://127.0.0.1:4389",
+    command: `npm run start -- --hostname 127.0.0.1 --port ${port}`,
+    url: `http://127.0.0.1:${port}`,
     reuseExistingServer: false,
   },
 });
