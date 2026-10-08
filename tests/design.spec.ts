@@ -29,7 +29,11 @@ test("declares one site name in og:site_name and WebSite JSON-LD, with canonical
   await expect(page.locator('meta[property="og:site_name"]')).toHaveAttribute("content", siteName);
   const jsonLd = JSON.parse((await page.locator('script[type="application/ld+json"]').textContent()) ?? "{}");
   expect(jsonLd).toEqual({ "@context": "https://schema.org", "@type": "WebSite", name: siteName, url: siteUrl });
-  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", /^https:\/\/nft-preview-card\.royeradames\.com\/?$/);
+  // Canonical, og:url and the WebSite url name the same address.
+  const canonical = await page.locator('link[rel="canonical"]').getAttribute("href");
+  const ogUrl = await page.locator('meta[property="og:url"]').getAttribute("content");
+  expect(new URL(canonical!).href).toBe(siteUrl);
+  expect(new URL(ogUrl!).href).toBe(siteUrl);
   await expect(page.locator('meta[property="og:image"]')).toHaveAttribute("content", /opengraph-image/);
   await expect(page.locator('meta[property="og:image:alt"]')).toHaveAttribute("content", /Equilibrium/);
   await expect(page.locator('link[rel="apple-touch-icon"]')).toHaveCount(1);
@@ -99,7 +103,32 @@ test("mobile frame follows the 375 px design", async ({ page }) => {
   expect(Math.abs(card.height - 596)).toBeLessThanOrEqual(6);
 });
 
-test("width sweep 320 to 1600 px in 10 px steps: no page scroll, 16 px floor, avatar on the first line", async ({ page }) => {
+async function avatarOffFirstLine(page: Page) {
+  const avatar = await box(page, ".creator > img");
+  const firstLine = await page.locator(".creator-copy").evaluate((element) => {
+    const range = document.createRange();
+    range.selectNodeContents(element);
+    const rect = range.getClientRects()[0];
+    return { top: rect.top, bottom: rect.bottom };
+  });
+  const centre = avatar.y + avatar.height / 2;
+  return centre < firstLine.top || centre > firstLine.bottom ? `avatar centre ${centre} outside first line ${firstLine.top}-${firstLine.bottom}` : null;
+}
+
+async function factIconsOffText(page: Page) {
+  // Compare each icon with its own text node, not with a range that includes the icon.
+  return page.locator(".artwork-facts dd").evaluateAll((items) => items.flatMap((item) => {
+    const icon = item.querySelector("img")!.getBoundingClientRect();
+    const text = [...item.childNodes].find((node) => node.nodeType === Node.TEXT_NODE)!;
+    const range = document.createRange();
+    range.selectNodeContents(text);
+    const line = range.getClientRects()[0];
+    const offset = Math.abs(icon.top + icon.height / 2 - (line.top + line.height / 2));
+    return offset > 2 ? [`${item.textContent} icon ${offset.toFixed(1)} px off its text`] : [];
+  }));
+}
+
+test("width sweep 320 to 1600 px in 10 px steps: no page scroll, 16 px floor, icons on the first line of their text", async ({ page }) => {
   await page.goto("/");
   const failures: string[] = [];
   for (let width = 320; width <= 1600; width += 10) {
@@ -107,23 +136,27 @@ test("width sweep 320 to 1600 px in 10 px steps: no page scroll, 16 px floor, av
     if (await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth)) failures.push(`${width}: page scroll`);
     const small = await smallText(page);
     if (small.length) failures.push(`${width}: small text ${small.join(" | ")}`);
-    const avatar = await box(page, ".creator > img");
-    const firstLine = await page.locator(".creator-copy").evaluate((element) => {
-      const range = document.createRange();
-      range.selectNodeContents(element);
-      const rect = range.getClientRects()[0];
-      return { top: rect.top, bottom: rect.bottom };
-    });
-    const centre = avatar.y + avatar.height / 2;
-    if (centre < firstLine.top || centre > firstLine.bottom) failures.push(`${width}: avatar centre ${centre} outside first line ${firstLine.top}-${firstLine.bottom}`);
-    const priceIcon = await box(page, ".price img");
-    const price = await page.locator(".price").evaluate((element) => {
-      const range = document.createRange();
-      range.selectNodeContents(element);
-      const rects = [...range.getClientRects()].filter((rect) => rect.width > 0 && rect.height > 0);
-      return { top: Math.min(...rects.map((rect) => rect.top)), bottom: Math.max(...rects.map((rect) => rect.bottom)) };
-    });
-    if (priceIcon.y < price.top - 2 || priceIcon.y + priceIcon.height > price.bottom + 2) failures.push(`${width}: price icon off its line`);
+    const avatar = await avatarOffFirstLine(page);
+    if (avatar) failures.push(`${width}: ${avatar}`);
+    for (const icon of await factIconsOffText(page)) failures.push(`${width}: ${icon}`);
+  }
+  expect(failures).toEqual([]);
+});
+
+test("the avatar stays on the first line when the credit is open and when text is enlarged to 200%", async ({ page }) => {
+  await page.goto("/");
+  await page.locator(".creator details").evaluate((details) => { (details as HTMLDetailsElement).open = true; });
+  const failures: string[] = [];
+  for (const width of [320, 400, 768, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    const open = await avatarOffFirstLine(page);
+    if (open) failures.push(`${width} open: ${open}`);
+  }
+  await page.addStyleTag({ content: "html { font-size: 200%; }" });
+  for (const width of [320, 400, 768, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    const enlarged = await avatarOffFirstLine(page);
+    if (enlarged) failures.push(`${width} 200%: ${enlarged}`);
   }
   expect(failures).toEqual([]);
 });

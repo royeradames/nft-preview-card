@@ -9,6 +9,7 @@ export default function OpengraphImage() {
     (
       <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", background: "#0d192c" }}>
         <div style={{ display: "flex", flexDirection: "column", width: 820, padding: 64, borderRadius: 40, background: "#15263f" }}>
+          <div style={{ fontSize: 28, color: "#8bacd9", marginBottom: 16 }}>Frontend Mentor practice card · sample values</div>
           <div style={{ fontSize: 76, fontWeight: 700, color: "#ffffff" }}>Equilibrium #3429</div>
           <div style={{ marginTop: 24, fontSize: 36, color: "#8bacd9" }}>Our Equilibrium collection promotes balance and calm.</div>
           <div style={{ display: "flex", justifyContent: "space-between", marginTop: 48, paddingTop: 32, borderTop: "2px solid #2e405a", fontSize: 34 }}>
