@@ -4,7 +4,7 @@ import "./globals.css";
 import { siteName, siteUrl } from "./site";
 
 const outfit = localFont({
-  src: "./fonts/Outfit-Variable.ttf",
+  src: "./fonts/Outfit-Variable.woff2",
   variable: "--font-outfit",
   display: "swap",
   weight: "100 900",
